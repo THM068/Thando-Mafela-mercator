@@ -1,10 +1,9 @@
 package com.mercator.cart
-import com.mercator.model.{Product}
-import com.mercator.model.CartItem
+import com.mercator.model.{CartItem, Offer, Product, ProductCode}
 
 import scala.collection.mutable.ListBuffer
 
-class CheckOut {
+class CheckOut(offers: Map[ProductCode, Offer] = Map()) extends Discount {
 
   private var productList: ListBuffer[Product] = new ListBuffer[Product]()
 
@@ -23,9 +22,22 @@ class CheckOut {
     }.toList
 
   def getTotalPrice(): BigDecimal =
-    getCartItems().map(_.totalPrice()).sum
+    calculatePrice(getCartItems(), offers)
 
   def clear()= this.productList.clear()
 
+}
 
+trait Discount {
+  def calculatePrice(cartItems: Seq[CartItem], offers: Map[ProductCode, Offer]): BigDecimal = {
+    cartItems.map { cartItem =>
+      val offerOption = offers.get(cartItem.product.productCode)
+      if(offerOption.nonEmpty) {
+          val offer = offerOption.get
+          val product = offer.product
+          offer.discountType.applyDiscount(product.price.cost, cartItem.quantity)
+      }
+      else cartItem.totalPrice()
+    }.sum
+  }
 }

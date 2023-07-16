@@ -60,6 +60,45 @@ class CheckOutSpec extends AnyFunSuite with Matchers {
 
   }
 
+  test("checkout shows correct cost of apples when discount is applied") {
+    val appleList = List("Apple", "Apple", "Apple")
+    val appleOffer = Offer(Product(Apple, Price(0.6)), TwoForOne())
+    val offerMap = Map[ProductCode, Offer](Apple -> appleOffer)
 
+    val checkOut = new CheckOut(offerMap)
+    checkOut.scanItems(appleList)
 
+    checkOut.getTotalPrice() shouldBe 1.20
+    checkOut.clear()
+
+    checkOut.scanItems(List("Apple", "Apple"))
+    checkOut.getTotalPrice() shouldBe 0.6
+  }
+
+  test("checkout shows correct cost of oranges when discount is applied") {
+    val orangesList = List("Orange", "Orange", "Orange", "Orange", "Orange")
+    val orangesOffer = Offer(Product(Orange, Price(0.25)), ThreeForTwo())
+    val offerMap = Map[ProductCode, Offer](Orange -> orangesOffer)
+
+    val checkOut = new CheckOut(offerMap)
+    checkOut.scanItems(orangesList)
+
+    checkOut.getTotalPrice() shouldBe 1.0
+    checkOut.clear()
+
+    checkOut.scanItems(List("Orange", "Orange", "Orange"))
+    checkOut.getTotalPrice() shouldBe 0.5
+  }
+
+  test("checkout shows correct price when discount is applied to apples and oranges") {
+    val foodList = List("Orange", "Orange", "Orange", "Orange", "Orange","Apple", "Apple", "Apple")
+
+    val orangesOffer = Offer(Product(Orange, Price(0.25)), ThreeForTwo())
+    val appleOffer = Offer(Product(Apple, Price(0.6)), TwoForOne())
+    val offerMap = Map[ProductCode, Offer](Orange -> orangesOffer, Apple -> appleOffer)
+    val checkOut = new CheckOut(offerMap)
+    checkOut.scanItems(foodList)
+
+    checkOut.getTotalPrice() shouldBe 2.20
+  }
 }
