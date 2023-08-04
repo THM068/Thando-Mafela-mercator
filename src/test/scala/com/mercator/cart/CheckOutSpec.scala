@@ -90,6 +90,27 @@ class CheckOutSpec extends AnyFunSuite with Matchers {
     checkOut.getTotalPrice() shouldBe 0.5
   }
 
+  test("checkout shows correct cost of a banana when a two for one discount is applies") {
+    val bananaList = List("Banana", "Banana")
+    val bananaOffer = Offer(Product(Banana, Price(0.20)), TwoForOne())
+    val offerMap: Map[ProductCode, Offer] = Map(Banana -> bananaOffer)
+
+    val checkOut = new CheckOut(offerMap)
+    checkOut.scanItems(bananaList)
+
+    checkOut.getTotalPrice() shouldBe 0.20
+  }
+
+  test("when apple and banana are bought together the cheapest one is free") {
+    val fruitList = List("Banana", "Apple")
+
+    val checkout = new CheckOut()
+    checkout.scanItems(fruitList)
+
+    checkout.getTotalPrice() shouldBe 0.2
+  }
+
+
   test("checkout shows correct price when discount is applied to apples and oranges") {
     val foodList = List("Orange", "Orange", "Orange", "Orange", "Orange","Apple", "Apple", "Apple")
 

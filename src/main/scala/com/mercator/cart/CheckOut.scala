@@ -1,5 +1,5 @@
 package com.mercator.cart
-import com.mercator.model.{CartItem, Offer, Product, ProductCode}
+import com.mercator.model.{Apple, Banana, CartItem, Offer, Product, ProductCode}
 
 import scala.collection.mutable.ListBuffer
 
@@ -30,14 +30,23 @@ class CheckOut(offers: Map[ProductCode, Offer] = Map()) extends Discount {
 
 trait Discount {
   def calculatePrice(cartItems: Seq[CartItem], offers: Map[ProductCode, Offer]): BigDecimal = {
-    cartItems.map { cartItem =>
+    val bananaAndAppleList = cartItems.filter { item =>
+      item.product.productCode == Banana || item.product.productCode == Apple
+    }.sortBy {item => item.totalPrice() }
+
+    val expensiveProduct = bananaAndAppleList.last
+    val cheapList = cartItems.filterNot( item => item.product.productCode == expensiveProduct.product.productCode)
+
+
+    cheapList.map { cartItem =>
       val offerOption = offers.get(cartItem.product.productCode)
-      if(offerOption.nonEmpty) {
-          val offer = offerOption.get
+      offerOption match {
+        case Some(offer) =>
           val product = offer.product
           offer.discountType.applyDiscount(product.price.cost, cartItem.quantity)
+        case _ =>
+          cartItem.totalPrice()
       }
-      else cartItem.totalPrice()
     }.sum
   }
 }

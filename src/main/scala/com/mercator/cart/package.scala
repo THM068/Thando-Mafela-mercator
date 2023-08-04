@@ -5,6 +5,7 @@ package object model {
   sealed trait ProductCode
   case object Apple extends ProductCode
   case object Orange extends ProductCode
+  case object Banana extends ProductCode
 
   case class Price(cost: BigDecimal) extends AnyVal
 
@@ -16,7 +17,7 @@ package object model {
 
   abstract class DiscountType(dealQuantity: Int, priceOf: Int = 1) {
     def applyDiscount(itemPrice: BigDecimal, itemTotalQuantity: Int): BigDecimal =
-      ((itemTotalQuantity / dealQuantity) * (priceOf * itemPrice) ) + ((itemTotalQuantity % dealQuantity) * itemPrice)
+      ((itemTotalQuantity / dealQuantity) * (BigDecimal(priceOf) * itemPrice) ) + ((itemTotalQuantity % dealQuantity) * itemPrice)
   }
   case class TwoForOne(dealQuantity: Int  = 2)  extends DiscountType(dealQuantity)
 
